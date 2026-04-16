@@ -1,0 +1,9 @@
+Analyzing frontend...                                           
+
+warning - Unused import: 'judicial_analytics_screen.dart' - lib\screens\home_screen.dart:4:8 - unused_import
+  error - The named parameter 'getTooltipColor' isn't defined - lib\screens\legal_trend_timeline_screen.dart:111:29 - undefined_named_parameter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\trend_screen.dart:94:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\argument_insights_widget.dart:22:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\argument_insights_widget.dart:209:35 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\widgets\argument_insights_widget.dart:244:14 - unnecessary_to_list_in_spreads
+

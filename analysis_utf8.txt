@@ -1,0 +1,17 @@
+﻿Analyzing frontend...                                           
+
+  error - Target of URI doesn't exist: 'legal_trend_timeline_screen.dart' - lib\screens\home_screen.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'judicial_analytics_screen.dart' - lib\screens\home_screen.dart:4:8 - uri_does_not_exist
+  error - The name 'LegalTrendTimelineScreen' isn't a class - lib\screens\home_screen.dart:157:47 - creation_with_non_type
+  error - Target of URI doesn't exist: 'insights_screen.dart' - lib\screens\similar_cases_screen.dart:4:8 - uri_does_not_exist
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\similar_cases_screen.dart:137:33 - deprecated_member_use
+  error - The method 'InsightsScreen' isn't defined for the type '_ExplainableCaseCardState' - lib\screens\similar_cases_screen.dart:153:25 - undefined_method
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\similar_cases_screen.dart:247:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\similar_cases_screen.dart:251:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\similar_cases_screen.dart:252:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\similar_cases_screen.dart:351:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\trend_screen.dart:94:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\argument_insights_widget.dart:22:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\argument_insights_widget.dart:209:35 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\widgets\argument_insights_widget.dart:244:14 - unnecessary_to_list_in_spreads
+
