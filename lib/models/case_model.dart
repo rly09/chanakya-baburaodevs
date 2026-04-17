@@ -60,6 +60,34 @@ class CaseModel {
       courtName: json['court_name'],
     );
   }
+
+  CaseModel copyWith({
+    String? id,
+    int? year,
+    List<String>? acts,
+    String? outcome,
+    String? description,
+    double? similarityScore,
+    double? confidenceScore,
+    List<String>? matchedPhrases,
+    String? explanation,
+    String? judgeName,
+    String? courtName,
+  }) {
+    return CaseModel(
+      id: id ?? this.id,
+      year: year ?? this.year,
+      acts: acts ?? this.acts,
+      outcome: outcome ?? this.outcome,
+      description: description ?? this.description,
+      similarityScore: similarityScore ?? this.similarityScore,
+      confidenceScore: confidenceScore ?? this.confidenceScore,
+      matchedPhrases: matchedPhrases ?? this.matchedPhrases,
+      explanation: explanation ?? this.explanation,
+      judgeName: judgeName ?? this.judgeName,
+      courtName: courtName ?? this.courtName,
+    );
+  }
 }
 
 class WinProbability {
@@ -292,6 +320,44 @@ class LandmarkEvent {
       description: json['description'] ?? '',
       caseId: json['case_id'] ?? '',
       caseSnippet: json['case_snippet'] ?? '',
+    );
+  }
+}
+
+class StressTestResult {
+  final double strengthScore;
+  final String grade;
+  final String gradeColor;
+  final List<String> detectedActs;
+  final List<String> weakestArguments;
+  final String strongestArgument;
+  final List<String> counterCases;
+  final int precedentsAnalyzed;
+  final String verdict;
+
+  StressTestResult({
+    required this.strengthScore,
+    required this.grade,
+    required this.gradeColor,
+    required this.detectedActs,
+    required this.weakestArguments,
+    required this.strongestArgument,
+    required this.counterCases,
+    required this.precedentsAnalyzed,
+    required this.verdict,
+  });
+
+  factory StressTestResult.fromJson(Map<String, dynamic> json) {
+    return StressTestResult(
+      strengthScore: (json['strength_score'] ?? 0.0).toDouble(),
+      grade: json['grade'] ?? 'UNKNOWN',
+      gradeColor: json['grade_color'] ?? 'gold',
+      detectedActs: List<String>.from(json['detected_acts'] ?? []),
+      weakestArguments: List<String>.from(json['weakest_arguments'] ?? []),
+      strongestArgument: json['strongest_argument'] ?? '',
+      counterCases: List<String>.from(json['counter_cases'] ?? []),
+      precedentsAnalyzed: json['precedents_analyzed'] ?? 0,
+      verdict: json['verdict'] ?? '',
     );
   }
 }

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
+import '../services/api_service.dart';
 import 'glassmorphic_card.dart';
 
 class CommandCenterInput extends StatefulWidget {
@@ -26,6 +28,10 @@ class _CommandCenterInputState extends State<CommandCenterInput>
   late Animation<double> _glowAnimation;
   final FocusNode _focusNode = FocusNode();
   bool _isFocused = false;
+  
+  bool _isBackendRunning = false;
+  Timer? _healthTimer;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -35,19 +41,33 @@ class _CommandCenterInputState extends State<CommandCenterInput>
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
 
-    _glowAnimation = Tween<double>(begin: 0.0, end: 4.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _glowAnimation = Tween<double>(
+      begin: 0.0,
+      end: 4.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
       });
     });
+
+    _checkHealth();
+    _healthTimer = Timer.periodic(const Duration(seconds: 3), (_) => _checkHealth());
+  }
+
+  Future<void> _checkHealth() async {
+    final isRunning = await _apiService.checkHealth();
+    if (mounted && isRunning != _isBackendRunning) {
+      setState(() {
+        _isBackendRunning = isRunning;
+      });
+    }
   }
 
   @override
   void dispose() {
+    _healthTimer?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -61,8 +81,10 @@ class _CommandCenterInputState extends State<CommandCenterInput>
         return GlassmorphicCard(
           padding: EdgeInsets.zero,
           borderColor: _isFocused
-              ? AppColors.legalGold.withOpacity(0.5 + (_glowAnimation.value / 8))
-              : AppColors.slateAccent.withOpacity(0.2),
+              ? AppColors.primary.withOpacity(
+                  0.5 + (_glowAnimation.value / 8),
+                )
+              : AppColors.border.withOpacity(0.2),
           child: Column(
             children: [
               TextField(
@@ -89,9 +111,11 @@ class _CommandCenterInputState extends State<CommandCenterInput>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      'AI ENGINE ACTIVE',
+                      _isBackendRunning ? 'AI ENGINE ACTIVE' : 'AI ENGINE OFFLINE',
                       style: TextStyle(
-                        color: _isFocused ? AppColors.legalGold : AppColors.textMuted,
+                        color: _isBackendRunning
+                            ? (_isFocused ? AppColors.primary : AppColors.textMuted)
+                            : Colors.redAccent,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,
@@ -103,11 +127,13 @@ class _CommandCenterInputState extends State<CommandCenterInput>
                       height: 6,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _isFocused ? AppColors.legalGold : AppColors.textMuted,
+                        color: _isBackendRunning
+                            ? Colors.green // Always green if running
+                            : Colors.redAccent, // Red if offline
                         boxShadow: [
-                          if (_isFocused)
+                          if (_isBackendRunning)
                             BoxShadow(
-                              color: AppColors.legalGold.withOpacity(0.5),
+                              color: Colors.green.withOpacity(0.5 + (_glowAnimation.value / 8)), // Blinking green
                               blurRadius: 4,
                               spreadRadius: 2,
                             ),

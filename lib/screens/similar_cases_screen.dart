@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:chanakya/providers/language_provider.dart';
 import '../models/case_model.dart';
 import '../services/api_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/confidence_gauge.dart';
 import '../widgets/glassmorphic_card.dart';
 import 'intelligent_dashboard_screen.dart';
-import 'sutra_summarizer_screen.dart';
 import 'vyoohm_screen.dart';
 
 class SimilarCasesScreen extends StatefulWidget {
@@ -93,11 +94,53 @@ class _PremiumCaseCard extends StatefulWidget {
 
 class _PremiumCaseCardState extends State<_PremiumCaseCard> {
   bool _isExpanded = false;
+  String? _translatedDescription;
+  String? _translatedExplanation;
+  String? _translatedTitle;
+  String? _lastLang;
+
+  void _handleTranslation(String lang) async {
+    if (lang == 'English') {
+      setState(() {
+        _translatedDescription = null;
+        _translatedExplanation = null;
+        _translatedTitle = null;
+        _lastLang = lang;
+      });
+      return;
+    }
+
+    if (_lastLang == lang) return;
+
+    final api = ApiService();
+
+    // Perform translations in parallel
+    final results = await Future.wait([
+      api.translate(widget.caseItem.displayName, lang),
+      api.translate(widget.caseItem.description, lang),
+      if (widget.caseItem.explanation != null)
+        api.translate(widget.caseItem.explanation!, lang)
+      else
+        Future.value(null),
+    ]);
+
+    if (mounted) {
+      setState(() {
+        _translatedTitle = results[0];
+        _translatedDescription = results[1];
+        _translatedExplanation = results[2];
+        _lastLang = lang;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    _handleTranslation(languageProvider.currentLanguage);
+
     final confidence = (widget.caseItem.confidenceScore ?? 0) / 100.0;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: GlassmorphicCard(
@@ -110,8 +153,17 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        IntelligentDashboardScreen(caseItem: widget.caseItem),
+                    builder: (context) => IntelligentDashboardScreen(
+                      caseItem: widget.caseItem.copyWith(
+                        id: _translatedTitle ?? widget.caseItem.id,
+                        description:
+                            _translatedDescription ??
+                            widget.caseItem.description,
+                        explanation:
+                            _translatedExplanation ??
+                            widget.caseItem.explanation,
+                      ),
+                    ),
                   ),
                 );
               },
@@ -131,7 +183,7 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.caseItem.displayName,
+                                _translatedTitle ?? widget.caseItem.displayName,
                                 style: GoogleFonts.inter(
                                   color: AppColors.legalGold,
                                   fontWeight: FontWeight.bold,
@@ -141,7 +193,7 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'YEAR ${widget.caseItem.year}',
+                                '${languageProvider.translate('YEAR')} ${widget.caseItem.year}',
                                 style: TextStyle(
                                   color: AppColors.textMuted,
                                   fontSize: 11,
@@ -155,8 +207,10 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      widget.caseItem.description.isNotEmpty
-                          ? widget.caseItem.description
+                      (_translatedDescription ?? widget.caseItem.description)
+                              .isNotEmpty
+                          ? (_translatedDescription ??
+                                widget.caseItem.description)
                           : 'No description available',
                       style: const TextStyle(
                         fontSize: 15,
@@ -170,7 +224,9 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: widget.caseItem.acts.map((act) => _ActChip(label: act)).toList(),
+                      children: widget.caseItem.acts
+                          .map((act) => _ActChip(label: act))
+                          .toList(),
                     ),
                   ],
                 ),
@@ -182,7 +238,10 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
               InkWell(
                 onTap: () => setState(() => _isExpanded = !_isExpanded),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   child: Row(
                     children: [
                       const Icon(
@@ -202,7 +261,9 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                       ),
                       const Spacer(),
                       Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
                         size: 20,
                         color: AppColors.textMuted,
                       ),
@@ -222,7 +283,8 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          widget.caseItem.explanation!,
+                          _translatedExplanation ??
+                              widget.caseItem.explanation!,
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
@@ -239,26 +301,6 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                               onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SutraSummarizerScreen(
-                                    caseId: widget.caseItem.id,
-                                    initialText: widget.caseItem.description,
-                                  ),
-                                ),
-                              ),
-                              icon: const Icon(Icons.auto_stories, size: 16),
-                              label: const Text('SUMMARIZE'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.legalGold,
-                                side: BorderSide(color: AppColors.legalGold.withOpacity(0.5)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
                                   builder: (context) => VyoohmScreen(
                                     focalCaseId: widget.caseItem.id,
                                   ),
@@ -268,7 +310,9 @@ class _PremiumCaseCardState extends State<_PremiumCaseCard> {
                               label: const Text('VYOOHM'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.cyanTrend,
-                                side: BorderSide(color: AppColors.cyanTrend.withOpacity(0.5)),
+                                side: BorderSide(
+                                  color: AppColors.cyanTrend.withOpacity(0.5),
+                                ),
                               ),
                             ),
                           ),
@@ -327,7 +371,11 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.crimsonLoss),
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: AppColors.crimsonLoss,
+            ),
             const SizedBox(height: 24),
             const Text(
               'Intelligence Engine Error',
@@ -354,4 +402,3 @@ class _ErrorState extends StatelessWidget {
     );
   }
 }
-

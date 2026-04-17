@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/vyoohm_screen.dart';
 import 'screens/dharma_gpt_screen.dart';
-import 'screens/sutra_summarizer_screen.dart';
+import 'screens/petition_stress_test_screen.dart';
 import 'utils/app_colors.dart';
 
-// Simple Language Provider for Pratilipi translation state
-class LanguageProvider extends ChangeNotifier {
-  String _currentLanguage = "English";
-  String get currentLanguage => _currentLanguage;
+import 'package:chanakya/providers/language_provider.dart';
+import 'widgets/dharma_gpt_fab.dart';
 
-  void setLanguage(String lang) {
-    _currentLanguage = lang;
-    notifyListeners();
-  }
-}
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => LanguageProvider())],
       child: const ChanakyaApp(),
     ),
   );
@@ -35,6 +31,7 @@ class ChanakyaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: globalNavigatorKey,
       title: 'Chanakya',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -52,12 +49,11 @@ class ChanakyaApp extends StatelessWidget {
           onBackground: AppColors.textPrimary,
           error: AppColors.crimsonLoss,
         ),
-        textTheme: GoogleFonts.interTextTheme(
-          Theme.of(context).textTheme,
-        ).apply(
-          bodyColor: AppColors.textPrimary,
-          displayColor: AppColors.textPrimary,
-        ),
+        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme)
+            .apply(
+              bodyColor: AppColors.textPrimary,
+              displayColor: AppColors.textPrimary,
+            ),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -91,7 +87,7 @@ class ChanakyaApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/vyoohm': (context) => const VyoohmScreen(),
         '/dharma-gpt': (context) => const DharmaGPTScreen(),
-        '/sutra-summarizer': (context) => const SutraSummarizerScreen(),
+        '/stress-test': (context) => const PetitionStressTestScreen(),
       },
     );
   }

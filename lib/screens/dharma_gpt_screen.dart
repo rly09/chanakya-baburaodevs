@@ -23,7 +23,8 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
     super.initState();
     _messages.add({
       'role': 'bot',
-      'content': 'Namaste. I am Chanakya\'s Dharma-GPT. Describe your legal challenge, and I shall simulate a strategic simulation based on ancient wisdom and modern precedents.',
+      'content':
+          'Namaste. I am Chanakya\'s Dharma-GPT. Describe your legal challenge, and I shall simulate a strategic simulation based on ancient wisdom and modern precedents.',
     });
   }
 
@@ -42,43 +43,38 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
         Uri.parse('http://localhost:8000/dharma-gpt'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'acts': ['IPC', 'CrPC'], // Generic fallback, backend handles query better
+          'acts': [
+            'IPC',
+            'CrPC',
+          ], // Generic fallback, backend handles query better
           'query': userText,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final sim = data['strategy_simulation'];
-        
-        String responseContent = "Based on my analysis of ${data['precedent_volume']} precedents, here is your strategic simulation:\n\n";
-        
-        responseContent += "⚔️ **Prosecution Attack Vectors:**\n";
-        for (var arg in (sim['prosecution_attack_vectors'] as List).take(2)) {
-          responseContent += "• $arg\n";
-        }
-        
-        responseContent += "\n🛡️ **Defense Counter-Moves:**\n";
-        for (var def in (sim['defense_counter_moves'] as List).take(2)) {
-          responseContent += "• $def\n";
-        }
-
-        responseContent += "\n⚠️ **Strategic Vulnerabilities:**\n";
-        for (var weak in (sim['strategic_vulnerabilities'] as List).take(2)) {
-          responseContent += "• $weak\n";
-        }
+        final responseContent =
+            data['reply_text'] ??
+            "Dharma-GPT analyzed your request but returned no text.";
 
         setState(() {
           _messages.add({'role': 'bot', 'content': responseContent});
         });
       } else {
         setState(() {
-          _messages.add({'role': 'bot', 'content': 'The strategy engine encountered a blockage. Please rephrase.'});
+          _messages.add({
+            'role': 'bot',
+            'content':
+                'The strategy engine encountered a blockage. Please rephrase.',
+          });
         });
       }
     } catch (e) {
       setState(() {
-        _messages.add({'role': 'bot', 'content': 'Connection to the tactical center lost.'});
+        _messages.add({
+          'role': 'bot',
+          'content': 'Connection to the tactical center lost.',
+        });
       });
     } finally {
       setState(() => _isTyping = false);
@@ -104,13 +100,19 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
                 return FadeInUp(
                   duration: const Duration(milliseconds: 400),
                   child: Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.8,
+                      ),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isUser ? AppColors.legalGold.withOpacity(0.15) : AppColors.surfaceElevated,
+                        color: isUser
+                            ? AppColors.legalGold.withOpacity(0.15)
+                            : AppColors.surfaceElevated,
                         borderRadius: BorderRadius.only(
                           topLeft: const Radius.circular(20),
                           topRight: const Radius.circular(20),
@@ -118,13 +120,17 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
                           bottomRight: Radius.circular(isUser ? 0 : 20),
                         ),
                         border: Border.all(
-                          color: isUser ? AppColors.legalGold.withOpacity(0.3) : AppColors.slateAccent.withOpacity(0.2),
+                          color: isUser
+                              ? AppColors.legalGold.withOpacity(0.3)
+                              : AppColors.slateAccent.withOpacity(0.2),
                         ),
                       ),
                       child: Text(
                         msg['content'],
                         style: TextStyle(
-                          color: isUser ? AppColors.textPrimary : AppColors.textSecondary,
+                          color: isUser
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
                           fontSize: 14,
                           height: 1.5,
                         ),
@@ -143,10 +149,16 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
                   const SizedBox(
                     width: 12,
                     height: 12,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.legalGold),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.legalGold,
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  Text('Consulting ancient scripts...', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  Text(
+                    'Consulting ancient scripts...',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  ),
                 ],
               ),
             ),
@@ -161,7 +173,9 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceDeep,
-        border: Border(top: BorderSide(color: AppColors.slateAccent.withOpacity(0.1))),
+        border: Border(
+          top: BorderSide(color: AppColors.slateAccent.withOpacity(0.1)),
+        ),
       ),
       child: SafeArea(
         child: Row(
@@ -179,7 +193,10 @@ class _DharmaGPTScreenState extends State<DharmaGPTScreen> {
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
                 onSubmitted: (_) => _sendMessage(),
               ),
